@@ -722,12 +722,16 @@ public class TextFormatter {
         #endif
     }
 
+    //MARK:-添加todo复选框
     public func todo() {
+        //selectedRange可能覆盖到【多个段落】
         guard let pRange = getParagraphRange() else { return }
 
+        //为啥叫做为了方便后续的处理，先将名为.todo文本附件替换为占位符"- []"
         let attributedString = getAttributedString().attributedSubstring(from: pRange)
         let mutable = NSMutableAttributedString(attributedString: attributedString).unLoadCheckboxes()
 
+        //段落为空
         if !attributedString.hasTodoAttribute() && selectedRange.length == 0 {
             insertText(AttributedBox.getUnChecked()!)
             return
@@ -783,13 +787,14 @@ public class TextFormatter {
         mutableResult.addAttribute(.font, value: NotesTextProcessor.font, range: NSRange(location: 0, length: mutableResult.length))
 #endif
 
+        //将占位符"- []"替换为名为.todo文本附件
         mutableResult.loadCheckboxes()
 
+        //将新文本插入
         let diff = mutableResult.length - attributedString.length
         let selectRange = selectedRange.length == 0 || lines.count == 1
             ? NSRange(location: pRange.location + pRange.length + diff - 1, length: 0)
             : NSRange(location: pRange.location, length: mutableResult.length)
-
         insertText(mutableResult, replacementRange: pRange, selectRange: selectRange)
     }
 

@@ -56,8 +56,10 @@ extension NSMutableAttributedString {
         return content!
     }
 
+    ///把.todo的文本属性改为String：例如value=1->"- [ ]"
     public func unLoadCheckboxes() -> NSMutableAttributedString {
         var offset = 0
+        //content可能是多段文字
         let content = self.mutableCopy() as? NSMutableAttributedString
 
         self.enumerateAttribute(.attachment, in: NSRange(location: 0, length: self.length)) { (value, range, _) in
@@ -67,7 +69,9 @@ extension NSMutableAttributedString {
                 guard range.length == 1,
                     let value = self.attribute(.todo, at: range.location, effectiveRange: nil) as? Int
                 else { return }
-
+                
+                ///注：checkboxText.addAttribute(.todo, value: 0, range: NSRange(0..<1))
+                
                 var gfm = "- [ ]"
                 if value == 1 {
                     gfm = "- [x]"
