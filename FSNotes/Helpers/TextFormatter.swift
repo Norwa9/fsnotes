@@ -627,7 +627,7 @@ public class TextFormatter {
         let currentParagraph = storage.attributedSubstring(from: currentParagraphRange)
         let selectedRange = self.textView.selectedRange
 
-        // Autocomplete todo lists
+        // 自动补齐todo列表
 
         if selectedRange.location != currentParagraphRange.location && currentParagraphRange.upperBound - 2 < selectedRange.location, currentParagraph.length >= 2 {
 
@@ -742,6 +742,10 @@ public class TextFormatter {
         var addCompleted = false
         let string = mutable.string
 
+        //分析每一段，
+        //1.若所有段落都没有未完成[]或完成[x]的占位符，则需要将每一段都加未完成占位符[]
+        //2.若存在段落有未完成[]，则把每一段都加完成占位符[x]
+        //3.parseTodo返回的是去除占位符的纯文本
         string.enumerateLines { (line, _) in
             let result = self.parseTodo(line: line)
             addPrefixes = !result.0
@@ -798,6 +802,7 @@ public class TextFormatter {
         insertText(mutableResult, replacementRange: pRange, selectRange: selectRange)
     }
 
+    //macos才会调用
     public func toggleTodo(_ location: Int? = nil) {
         if let location = location, let todoAttr = storage.attribute(.todo, at: location, effectiveRange: nil) as? Int {
             let attributedText = (todoAttr == 0) ? AttributedBox.getChecked() : AttributedBox.getUnChecked()
@@ -1436,6 +1441,8 @@ public class TextFormatter {
         var whitespacePrefix = String()
         var letterPrefix = String()
 
+        //1.获取空白前缀whitespacePrefix
+        //2.获取剔除空白后的字母letterPrefix
         for char in line {
             if char.isWhitespace && !charFound {
                 count += 1
@@ -1456,6 +1463,7 @@ public class TextFormatter {
             hasTodoPrefix = true
         }
 
+        //取出所有占位符
         letterPrefix =
             letterPrefix
                 .replacingOccurrences(of: "- [ ] ", with: "")
